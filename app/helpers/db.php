@@ -14,20 +14,16 @@ function db(): PDO
         $user = getenv('DB_USERNAME') ?: 'postgres.vflwhhwxqsysrpcgvbwl';
         $password = getenv('DB_PASSWORD') ?: 'fc?644Y!nL#bar$';
 
-        // Construct a clean PostgreSQL DSN string
-        $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};";
+        // Securely pass the SSL parameter directly inside the PostgreSQL DSN string
+        $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};sslmode=require;";
 
         try {
             $pdo = new PDO($dsn, $user, $password, [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                // Force SSL connection parameters for remote cloud environments
-                PDO::pgsqlATTR_DISABLE_PREPARES => true,
+                // Fixed spelling and case format to the standard PHP core driver constant
+                PDO::PGSQL_ATTR_DISABLE_PREPARES => true,
             ]);
-            
-            // Explicitly run an isolated connection query forcing SSL negotiation if needed
-            $pdo->query("SET sslmode TO 'require'");
-            
         } catch (PDOException $e) {
             throw new RuntimeException("Database connection failed: " . $e->getMessage(), (int)$e->getCode(), $e);
         }
