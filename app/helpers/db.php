@@ -12,13 +12,23 @@ function db(): PDO
 
     $config = require __DIR__ . '/../config/database.php';
 
-    $dsn = sprintf(
-        'mysql:host=%s;port=%s;dbname=%s;charset=%s',
-        $config['host'],
-        $config['port'],
-        $config['database'],
-        $config['charset']
-    );
+    // Build the DSN based dynamically on whether it's pgsql or mysql
+    if (($config['driver'] ?? 'mysql') === 'pgsql') {
+        $dsn = sprintf(
+            'pgsql:host=%s;port=%s;dbname=%s',
+            $config['host'],
+            $config['port'],
+            $config['database']
+        );
+    } else {
+        $dsn = sprintf(
+            'mysql:host=%s;port=%s;dbname=%s;charset=%s',
+            $config['host'],
+            $config['port'],
+            $config['database'],
+            $config['charset'] ?? 'utf8'
+        );
+    }
 
     $pdo = new PDO(
         $dsn,
