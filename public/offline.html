@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You're offline | Augustine IT Booking Platform</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(180deg, #f8fbff 0%, #eef3f8 100%);
+            color: #16202d;
+        }
+        .card {
+            max-width: 420px;
+            margin: 24px;
+            padding: 32px;
+            text-align: center;
+            background: #ffffff;
+            border: 1px solid #d9e3ee;
+            border-radius: 24px;
+            box-shadow: 0 18px 40px rgba(22, 32, 45, 0.08);
+        }
+        h1 { margin-top: 0; font-size: 1.4rem; }
+        p { color: #5d6a79; line-height: 1.6; }
+        button {
+            margin-top: 12px;
+            border: 0;
+            border-radius: 999px;
+            padding: 11px 20px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            background: #14532d;
+            color: #ffffff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>You're offline</h1>
+        <p>We can't reach the IT Booking Platform right now. Check your connection and try again — any page you've already visited may still be available.</p>
+        <button onclick="window.location.reload()">Retry</button>
+    </div>
+</body>
+</html>

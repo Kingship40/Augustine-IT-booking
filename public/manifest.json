@@ -1,0 +1,38 @@
+{
+  "id": "/index.php",
+  "short_name": "ITBooking",
+  "name": "Augustine IT Booking Platform",
+  "description": "Book, deliver, and manage IT services through a role-based marketplace for seekers, providers, and admins.",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "/index.php",
+  "scope": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#14532d",
+  "display": "standalone",
+  "orientation": "portrait"
+}
