@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 return [
-    'host' => '127.0.0.1',
-    'port' => '3306',
-    'database' => 'it_service_delivery',
-    'username' => 'root',
-    'password' => '',
-    'charset' => 'utf8mb4',
+    'driver'   => 'pgsql', 
+    'host'     => getenv('DB_HOST') ?: 'db.vflwhhwxqsysrpcgvbwl.supabase.co',
+    'port'     => getenv('DB_PORT') ?: '5432',
+    'database' => getenv('DB_DATABASE') ?: 'postgres',
+    'username' => getenv('DB_USERNAME') ?: 'postgres',
+    'password' => getenv('DB_PASSWORD') ?: 'fc?644Y!nL#bar$',
 ];
