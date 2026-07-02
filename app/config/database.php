@@ -9,4 +9,5 @@ return [
     'database' => getenv('DB_DATABASE') ?: 'postgres',
     'username' => getenv('DB_USERNAME') ?: 'postgres',
     'password' => getenv('DB_PASSWORD') ?: 'fc?644Y!nL#bar$',
+    'charset'  => 'utf8', // Added to satisfy app/helpers/db.php line 20
 ];
