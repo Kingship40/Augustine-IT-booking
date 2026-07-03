@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-// Corrected relative paths to target the app folder from within public/
+// Step out of public/ and target app/bootstrap.php
 require __DIR__ . '/../app/bootstrap.php';
 
-$app = require __DIR__ . '/../app.php';
+// Step out of public/ and target app/config/app.php
+$app = require __DIR__ . '/../app/config/app.php';
 $route = $_GET['route'] ?? $app['default_route'];
 
 function render(string $view, array $data = []): void
@@ -15,11 +16,11 @@ function render(string $view, array $data = []): void
     extract($data, EXTR_SKIP);
 
     ob_start();
-    // Go up one level to reach the flat root directory where views are located
-    require __DIR__ . '/../' . $view . '.php';
+    // Route into the app/views folder
+    require __DIR__ . '/../app/views/' . $view . '.php';
     $content = ob_get_clean();
 
-    require __DIR__ . '/../layout.php';
+    require __DIR__ . '/../app/views/layout.php';
 }
 
 function validate_registration(array $input): array
@@ -77,13 +78,13 @@ if (!database_ready()) {
         <span class="eyebrow">Database Required</span>
         <h1>Connect database before using authentication.</h1>
         <p class="muted">
-            Update your credentials in <code>database.php</code> and import
-            <code>schema.sql</code> into your database cluster. After that, reload this page.
+            Update your credentials in <code>app/config/database.php</code> and import
+            <code>database/schema.sql</code> into your database cluster. After that, reload this page.
         </p>
     </section>
     <?php
     $content = ob_get_clean();
-    require __DIR__ . '/../layout.php';
+    require __DIR__ . '/../app/views/layout.php';
     exit;
 }
 
@@ -95,7 +96,7 @@ if ($route === 'home') {
 
 if ($route === 'register' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     require_guest();
-    render('register', [
+    render('auth/register', [
         'title' => 'Register',
         'role' => $_GET['role'] ?? 'seeker',
     ]);
@@ -144,7 +145,7 @@ if ($route === 'register' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($route === 'login' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     require_guest();
-    render('login', ['title' => 'Login']);
+    render('auth/login', ['title' => 'Login']);
     exit;
 }
 
@@ -195,7 +196,7 @@ if ($route === 'dashboard') {
 
 if ($route === 'seeker-dashboard') {
     require_role('seeker');
-    render('seeker', [
+    render('dashboard/seeker', [
         'title' => 'Seeker Dashboard',
         'user' => current_user(),
         'data' => get_seeker_dashboard_data((int) current_user()['id']),
@@ -205,7 +206,7 @@ if ($route === 'seeker-dashboard') {
 
 if ($route === 'provider-dashboard') {
     require_role('provider');
-    render('provider', [
+    render('dashboard/provider', [
         'title' => 'Provider Dashboard',
         'user' => current_user(),
         'data' => get_provider_dashboard_data((int) current_user()['id']),
@@ -215,7 +216,7 @@ if ($route === 'provider-dashboard') {
 
 if ($route === 'admin-dashboard') {
     require_role('admin');
-    render('admin', [
+    render('dashboard/admin', [
         'title' => 'Admin Dashboard',
         'user' => current_user(),
         'data' => get_admin_dashboard_data(),
