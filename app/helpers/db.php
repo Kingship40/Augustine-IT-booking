@@ -12,12 +12,12 @@ function db(): PDO
 
     $config = require __DIR__ . '/../config/database.php';
 
+    // Swapped driver syntax from 'mysql' to 'pgsql'
     $dsn = sprintf(
-        'mysql:host=%s;port=%s;dbname=%s;charset=%s',
+        'pgsql:host=%s;port=%s;dbname=%s',
         $config['host'],
         $config['port'],
-        $config['database'],
-        $config['charset'] ?? 'utf8mb4'
+        $config['database']
     );
 
     $pdo = new PDO(
