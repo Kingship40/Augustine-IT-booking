@@ -23,20 +23,8 @@ $viewer = current_user();
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
-                    .then((reg) => {
-                        console.log('Service worker registered:', reg.scope);
-
-                        // If a new service worker takes over, the assets it
-                        // controls may be newer than what's on screen —
-                        // reload once so the user gets the latest version.
-                        let refreshed = false;
-                        navigator.serviceWorker.addEventListener('controllerchange', () => {
-                            if (refreshed) return;
-                            refreshed = true;
-                            window.location.reload();
-                        });
-                    })
-                    .catch((err) => console.log('Service worker registration failed:', err));
+                    .then(reg => console.log('Service Worker Registered Successfully!', reg.scope))
+                    .catch(err => console.log('Service Worker Registration Failed:', err));
             });
         }
     </script>

@@ -25,21 +25,21 @@ declare(strict_types=1);
     </div>
     <div class="panel stat">
         <span class="muted">Published Services</span>
-        <strong><?= e((string) ($data['service_count'] ?? 0)) ?></strong>
+        <strong><?= e((string) $data['service_count']) ?></strong>
     </div>
     <div class="panel stat">
         <span class="muted">Total Jobs</span>
-        <strong><?= e((string) ($data['job_count'] ?? 0)) ?></strong>
+        <strong><?= e((string) $data['job_count']) ?></strong>
     </div>
     <div class="panel stat">
         <span class="muted">Pending Withdrawals</span>
-        <strong><?= e((string) ($data['pending_withdrawal_count'] ?? 0)) ?></strong>
+        <strong><?= e((string) $data['pending_withdrawal_count']) ?></strong>
     </div>
 </section>
 
 <section class="panel" style="margin-top:24px;">
     <h2>Recent jobs</h2>
-    <?php if (empty($data['recent_jobs'])): ?>
+    <?php if ($data['recent_jobs'] === []): ?>
         <div class="empty">No assigned jobs yet. The next phase will connect providers to services, requests, and job updates.</div>
     <?php else: ?>
         <div class="table-wrap">
@@ -59,7 +59,7 @@ declare(strict_types=1);
                             <td><?= e($job['subject']) ?></td>
                             <td><?= e($job['seeker_name']) ?></td>
                             <td><span class="status"><?= e($job['status']) ?></span></td>
-                            <td>NGN <?= number_format((float) ($job['amount'] ?? 0), 2) ?></td>
+                            <td>NGN <?= number_format((float) $job['amount'], 2) ?></td>
                             <td><?= e($job['created_at']) ?></td>
                         </tr>
                     <?php endforeach; ?>

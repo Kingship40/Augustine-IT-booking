@@ -57,18 +57,12 @@ function validate_registration(array $input): array
     return $errors;
 }
 
-// Global variable tracker to pass the exception string out of the try-catch block
-$db_error_message = null;
-
 function database_ready(): bool
 {
-    global $db_error_message;
     try {
         db()->query('SELECT 1');
         return true;
-    } catch (Throwable $exception) {
-        // Intercept and store the active message text string
-        $db_error_message = $exception->getMessage();
+    } catch (Throwable) {
         return false;
     }
 }
@@ -79,14 +73,11 @@ if (!database_ready()) {
     ?>
     <section class="hero">
         <span class="eyebrow">Database Required</span>
-        <h1>Connect Database before using authentication.</h1>
+        <h1>Connect MySQL before using authentication.</h1>
         <p class="muted">
-            Update your credentials in <code>app/config/database.php</code>.
+            Update your credentials in <code>app/config/database.php</code> and import
+            <code>database/schema.sql</code> into MySQL or MariaDB. After that, reload this page.
         </p>
-        <div style="margin-top: 20px; padding: 15px; background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; border-radius: 4px; font-family: monospace; text-align: left; font-size: 14px;">
-            <strong>Live Connection Error:</strong><br>
-            <?php echo htmlspecialchars($db_error_message ?? 'Unknown connection tracking failure.'); ?>
-        </div>
     </section>
     <?php
     $content = ob_get_clean();
@@ -133,9 +124,9 @@ if ($route === 'register' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             'phone' => trim((string) ($_POST['phone'] ?? '')),
             'password' => (string) $_POST['password'],
             'business_name' => trim((string) ($_POST['business_name'] ?? '')),
-            'skills' => trim((string) $_POST['skills']),
-            'bio' => trim((string) $_POST['bio']),
-            'years_experience' => trim((string) $_POST['years_experience']),
+            'skills' => trim((string) ($_POST['skills'] ?? '')),
+            'bio' => trim((string) ($_POST['bio'] ?? '')),
+            'years_experience' => trim((string) ($_POST['years_experience'] ?? '')),
         ]);
 
         clear_old();
@@ -166,7 +157,7 @@ if ($route === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     set_old($_POST);
     $user = authenticate_user(
         strtolower(trim((string) ($_POST['email'] ?? ''))),
-        $input_password = (string) ($_POST['password'] ?? '')
+        (string) ($_POST['password'] ?? '')
     );
 
     if (!$user) {

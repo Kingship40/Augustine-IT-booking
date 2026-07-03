@@ -24,37 +24,37 @@ declare(strict_types=1);
 <section class="grid cards">
     <div class="panel stat">
         <span class="muted">Total Users</span>
-        <strong><?= e((string) ($data['total_users'] ?? 0)) ?></strong>
+        <strong><?= e((string) $data['total_users']) ?></strong>
     </div>
     <div class="panel stat">
         <span class="muted">Seekers</span>
-        <strong><?= e((string) ($data['total_seekers'] ?? 0)) ?></strong>
+        <strong><?= e((string) $data['total_seekers']) ?></strong>
     </div>
     <div class="panel stat">
         <span class="muted">Providers</span>
-        <strong><?= e((string) ($data['total_providers'] ?? 0)) ?></strong>
+        <strong><?= e((string) $data['total_providers']) ?></strong>
     </div>
     <div class="panel stat">
         <span class="muted">Pending Providers</span>
-        <strong><?= e((string) ($data['pending_providers'] ?? 0)) ?></strong>
+        <strong><?= e((string) $data['pending_providers']) ?></strong>
     </div>
     <div class="panel stat">
         <span class="muted">Service Requests</span>
-        <strong><?= e((string) ($data['total_requests'] ?? 0)) ?></strong>
+        <strong><?= e((string) $data['total_requests']) ?></strong>
     </div>
     <div class="panel stat">
         <span class="muted">Pending Withdrawals</span>
-        <strong><?= e((string) ($data['pending_withdrawals'] ?? 0)) ?></strong>
+        <strong><?= e((string) $data['pending_withdrawals']) ?></strong>
     </div>
     <div class="panel stat">
         <span class="muted">Reviews</span>
-        <strong><?= e((string) ($data['total_reviews'] ?? 0)) ?></strong>
+        <strong><?= e((string) $data['total_reviews']) ?></strong>
     </div>
 </section>
 
 <section class="panel" style="margin-top:24px;">
     <h2>Recent users</h2>
-    <?php if (empty($data['recent_users'])): ?>
+    <?php if ($data['recent_users'] === []): ?>
         <div class="empty">No users registered yet.</div>
     <?php else: ?>
         <div class="table-wrap">

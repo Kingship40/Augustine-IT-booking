@@ -28,17 +28,17 @@ declare(strict_types=1);
     </div>
     <div class="panel stat">
         <span class="muted">Requests Created</span>
-        <strong><?= e((string) ($data['request_count'] ?? 0)) ?></strong>
+        <strong><?= e((string) $data['request_count']) ?></strong>
     </div>
     <div class="panel stat">
         <span class="muted">Completed Requests</span>
-        <strong><?= e((string) ($data['completed_count'] ?? 0)) ?></strong>
+        <strong><?= e((string) $data['completed_count']) ?></strong>
     </div>
 </section>
 
 <section class="panel" style="margin-top:24px;">
     <h2>Recent requests</h2>
-    <?php if (empty($data['recent_requests'])): ?>
+    <?php if ($data['recent_requests'] === []): ?>
         <div class="empty">No service requests yet. The next phase will connect this dashboard to provider browsing and request creation.</div>
     <?php else: ?>
         <div class="table-wrap">
@@ -58,7 +58,7 @@ declare(strict_types=1);
                             <td><?= e($request['subject']) ?></td>
                             <td><?= e($request['business_name']) ?></td>
                             <td><span class="status"><?= e($request['status']) ?></span></td>
-                            <td>NGN <?= number_format((float) ($request['amount'] ?? 0), 2) ?></td>
+                            <td>NGN <?= number_format((float) $request['amount'], 2) ?></td>
                             <td><?= e($request['created_at']) ?></td>
                         </tr>
                     <?php endforeach; ?>
