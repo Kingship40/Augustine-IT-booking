@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-// Corrected relative paths to match the flat directory structure
-require __DIR__ . '/bootstrap.php';
+// Corrected relative paths to target the app folder from within public/
+require __DIR__ . '/../app/bootstrap.php';
 
-$app = require __DIR__ . '/app.php';
+$app = require __DIR__ . '/../app.php';
 $route = $_GET['route'] ?? $app['default_route'];
 
 function render(string $view, array $data = []): void
@@ -15,10 +15,11 @@ function render(string $view, array $data = []): void
     extract($data, EXTR_SKIP);
 
     ob_start();
-    require __DIR__ . '/' . $view . '.php';
+    // Go up one level to reach the flat root directory where views are located
+    require __DIR__ . '/../' . $view . '.php';
     $content = ob_get_clean();
 
-    require __DIR__ . '/layout.php';
+    require __DIR__ . '/../layout.php';
 }
 
 function validate_registration(array $input): array
@@ -82,7 +83,7 @@ if (!database_ready()) {
     </section>
     <?php
     $content = ob_get_clean();
-    require __DIR__ . '/layout.php';
+    require __DIR__ . '/../layout.php';
     exit;
 }
 
