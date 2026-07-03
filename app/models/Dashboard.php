@@ -50,20 +50,41 @@ function get_provider_dashboard_data(int $providerId): array
 {
     $db = db();
 
-    $profileStmt = $db->prepare('SELECT business_name, verification_status, availability_status FROM users WHERE id = :id LIMIT 1');
+    // 1. Fetch profile business name only
+    $profileStmt = $db->prepare('SELECT business_name FROM users WHERE id = :id LIMIT 1');
     $profileStmt->execute(['id' => $providerId]);
     $profile = $profileStmt->fetch() ?: [
-        'business_name' => 'Not set',
-        'verification_status' => 'pending',
-        'availability_status' => 'available'
+        'business_name' => 'Not set'
     ];
+
+    // 2. Dynamically Count total requests/services assigned to this provider
+    $serviceCountStmt = $db->prepare('SELECT COUNT(*) as count FROM service_requests WHERE provider_id = :provider_id');
+    $serviceCountStmt->execute(['provider_id' => $providerId]);
+    $serviceCount = (int) ($serviceCountStmt->fetch()['count'] ?? 0);
+
+    // 3. Count total active jobs or total completed transactions
+    $jobCountStmt = $db->prepare("SELECT COUNT(*) as count FROM service_requests WHERE provider_id = :provider_id AND status = 'completed'");
+    $jobCountStmt->execute(['provider_id' => $providerId]);
+    $jobCount = (int) ($jobCountStmt->fetch()['count'] ?? 0);
+
+    // 4. Fetch Recent Jobs mapping user profile links cleanly
+    $recentJobsStmt = $db->prepare("
+        SELECT r.*, u.full_name as seeker_name 
+        FROM service_requests r
+        LEFT JOIN users u ON r.seeker_id = u.id
+        WHERE r.provider_id = :provider_id
+        ORDER BY r.created_at DESC 
+        LIMIT 5
+    ");
+    $recentJobsStmt->execute(['provider_id' => $providerId]);
+    $recentJobs = $recentJobsStmt->fetchAll() ?: [];
 
     return [
         'profile'                  => $profile,
-        'service_count'            => 0,
-        'job_count'                => 0,
+        'service_count'            => $serviceCount,
+        'job_count'                => $jobCount,
         'pending_withdrawal_count' => 0,
-        'recent_jobs'              => [],
+        'recent_jobs'              => $recentJobs,
     ];
 }
 
