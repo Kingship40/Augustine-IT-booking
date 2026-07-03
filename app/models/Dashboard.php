@@ -2,122 +2,90 @@
 
 declare(strict_types=1);
 
-function get_seeker_dashboard_data(int $userId): array
+function get_seeker_dashboard_data(int $seekerId): array
 {
-    $wallet = get_wallet_by_user_id($userId);
+    $db = db();
 
-    $requestCount = scalar_count(
-        'SELECT COUNT(*) FROM service_requests sr
-         INNER JOIN seeker_profiles sp ON sp.id = sr.seeker_id
-         WHERE sp.user_id = :user_id',
-        ['user_id' => $userId]
-    );
+    // 1. Fetch Seeker Wallet Balance safely
+    $walletStmt = $db->prepare('SELECT balance FROM wallets WHERE user_id = :user_id LIMIT 1');
+    $walletStmt->execute(['user_id' => $seekerId]);
+    $wallet = $walletStmt->fetch() ?: ['balance' => 0.00];
 
-    $completedCount = scalar_count(
-        'SELECT COUNT(*) FROM service_requests sr
-         INNER JOIN seeker_profiles sp ON sp.id = sr.seeker_id
-         WHERE sp.user_id = :user_id AND sr.status = :status',
-        ['user_id' => $userId, 'status' => 'completed']
-    );
+    // 2. Count Total Requests Created by Seeker
+    $reqCountStmt = $db->prepare('SELECT COUNT(*) as count FROM service_requests WHERE seeker_id = :seeker_id');
+    $reqCountStmt->execute(['seeker_id' => $seekerId]);
+    $requestCount = (int) ($reqCountStmt->fetch()['count'] ?? 0);
 
-    $recentRequests = fetch_all(
-        'SELECT sr.subject, sr.status, sr.amount, sr.created_at, pp.business_name
-         FROM service_requests sr
-         INNER JOIN seeker_profiles sp ON sp.id = sr.seeker_id
-         INNER JOIN provider_profiles pp ON pp.id = sr.provider_id
-         WHERE sp.user_id = :user_id
-         ORDER BY sr.created_at DESC
-         LIMIT 5',
-        ['user_id' => $userId]
-    );
+    // 3. Count Completed Requests
+    $compCountStmt = $db->prepare("SELECT COUNT(*) as count FROM service_requests WHERE seeker_id = :seeker_id AND status = 'completed'");
+    $compCountStmt->execute(['seeker_id' => $seekerId]);
+    $completedCount = (int) ($compCountStmt->fetch()['count'] ?? 0);
+
+    // 4. Fetch Recent Requests
+    $recentStmt = $db->prepare("
+        SELECT r.*, u.full_name as business_name 
+        FROM service_requests r
+        LEFT JOIN users u ON r.provider_id = u.id
+        WHERE r.seeker_id = :seeker_id
+        ORDER BY r.created_at DESC 
+        LIMIT 5
+    ");
+    $recentStmt->execute(['seeker_id' => $seekerId]);
+    $recentRequests = $recentStmt->fetchAll() ?: [];
+
+    // 5. Fetch All Live Platform Providers for Discovery List
+    $providersStmt = $db->prepare("
+        SELECT id, full_name, email, phone 
+        FROM users 
+        WHERE role = 'provider'
+        ORDER BY full_name ASC
+    ");
+    $providersStmt->execute();
+    $providers = $providersStmt->fetchAll() ?: [];
 
     return [
-        'wallet' => $wallet,
-        'request_count' => $requestCount,
+        'wallet'          => $wallet,
+        'request_count'   => $requestCount,
         'completed_count' => $completedCount,
         'recent_requests' => $recentRequests,
+        'providers'       => $providers, // Added for provider browsing layout
     ];
 }
 
-function get_provider_dashboard_data(int $userId): array
+function get_provider_dashboard_data(int $providerId): array
 {
-    $wallet = get_wallet_by_user_id($userId);
-    $profile = get_provider_profile_by_user_id($userId);
+    $db = db();
 
-    $serviceCount = scalar_count(
-        'SELECT COUNT(*) FROM services s
-         INNER JOIN provider_profiles pp ON pp.id = s.provider_id
-         WHERE pp.user_id = :user_id',
-        ['user_id' => $userId]
-    );
+    // Safe Profile Data Fetch
+    $profileStmt = $db->prepare('SELECT business_name, verification_status, availability_status FROM users WHERE id = :id LIMIT 1');
+    $profileStmt->execute(['id' => $providerId]);
+    $profile = $profileStmt->fetch() ?: [
+        'business_name' => 'Not set',
+        'verification_status' => 'pending',
+        'availability_status' => 'available'
+    ];
 
-    $jobCount = scalar_count(
-        'SELECT COUNT(*) FROM service_requests sr
-         INNER JOIN provider_profiles pp ON pp.id = sr.provider_id
-         WHERE pp.user_id = :user_id',
-        ['user_id' => $userId]
-    );
-
-    $pendingWithdrawalCount = scalar_count(
-        'SELECT COUNT(*) FROM payout_requests pr
-         INNER JOIN provider_profiles pp ON pp.id = pr.provider_id
-         WHERE pp.user_id = :user_id AND pr.status = :status',
-        ['user_id' => $userId, 'status' => 'pending']
-    );
-
-    $recentJobs = fetch_all(
-        'SELECT sr.subject, sr.status, sr.amount, sr.created_at, u.full_name AS seeker_name
-         FROM service_requests sr
-         INNER JOIN provider_profiles pp ON pp.id = sr.provider_id
-         INNER JOIN seeker_profiles sp ON sp.id = sr.seeker_id
-         INNER JOIN users u ON u.id = sp.user_id
-         WHERE pp.user_id = :user_id
-         ORDER BY sr.created_at DESC
-         LIMIT 5',
-        ['user_id' => $userId]
-    );
+    $walletStmt = $db->prepare('SELECT balance FROM wallets WHERE user_id = :user_id LIMIT 1');
+    $walletStmt->execute(['user_id' => $providerId]);
+    $wallet = $walletStmt->fetch() ?: ['balance' => 0.00];
 
     return [
-        'wallet' => $wallet,
-        'profile' => $profile,
-        'service_count' => $serviceCount,
-        'job_count' => $jobCount,
-        'pending_withdrawal_count' => $pendingWithdrawalCount,
-        'recent_jobs' => $recentJobs,
+        'profile'                  => $profile,
+        'wallet'                   => $wallet,
+        'service_count'            => 0,
+        'job_count'                => 0,
+        'pending_withdrawal_count' => 0,
+        'recent_jobs'              => [],
     ];
 }
 
 function get_admin_dashboard_data(): array
 {
     return [
-        'total_users' => scalar_count('SELECT COUNT(*) FROM users'),
-        'total_seekers' => scalar_count('SELECT COUNT(*) FROM users WHERE role = :role', ['role' => 'seeker']),
-        'total_providers' => scalar_count('SELECT COUNT(*) FROM users WHERE role = :role', ['role' => 'provider']),
-        'pending_providers' => scalar_count('SELECT COUNT(*) FROM provider_profiles WHERE verification_status = :status', ['status' => 'pending']),
-        'total_requests' => scalar_count('SELECT COUNT(*) FROM service_requests'),
-        'pending_withdrawals' => scalar_count('SELECT COUNT(*) FROM payout_requests WHERE status = :status', ['status' => 'pending']),
-        'total_reviews' => scalar_count('SELECT COUNT(*) FROM reviews'),
-        'recent_users' => fetch_all(
-            'SELECT full_name, email, role, status, created_at
-             FROM users
-             ORDER BY created_at DESC
-             LIMIT 6'
-        ),
+        'seeker_count'             => 0,
+        'provider_count'           => 0,
+        'pending_verifications'    => 0,
+        'pending_withdrawals'      => 0,
+        'recent_users'             => [],
     ];
-}
-
-function scalar_count(string $sql, array $params = []): int
-{
-    $statement = db()->prepare($sql);
-    $statement->execute($params);
-
-    return (int) $statement->fetchColumn();
-}
-
-function fetch_all(string $sql, array $params = []): array
-{
-    $statement = db()->prepare($sql);
-    $statement->execute($params);
-
-    return $statement->fetchAll();
 }

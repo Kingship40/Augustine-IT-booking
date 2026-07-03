@@ -12,10 +12,10 @@ declare(strict_types=1);
         <div class="panel">
             <h3>Quick direction</h3>
             <ul class="list">
-                <li>browse providers and available services</li>
-                <li>submit a service request</li>
-                <li>fund wallet and pay through the platform</li>
-                <li>confirm completion and leave a review</li>
+                <li>Browse registered platform service providers below</li>
+                <li>Submit a targeted service request assignment</li>
+                <li>Fund your wallet to make secure payments instantly</li>
+                <li>Confirm job completion to close out active reviews</li>
             </ul>
         </div>
     </div>
@@ -28,18 +28,53 @@ declare(strict_types=1);
     </div>
     <div class="panel stat">
         <span class="muted">Requests Created</span>
-        <strong><?= e((string) $data['request_count']) ?></strong>
+        <strong><?= e((string) ($data['request_count'] ?? 0)) ?></strong>
     </div>
     <div class="panel stat">
         <span class="muted">Completed Requests</span>
-        <strong><?= e((string) $data['completed_count']) ?></strong>
+        <strong><?= e((string) ($data['completed_count'] ?? 0)) ?></strong>
     </div>
+</section>
+
+<!-- Added Feature: Discovery List of Available Providers -->
+<section class="panel" style="margin-top:24px;">
+    <h2>Available IT Service Providers</h2>
+    <?php if (empty($data['providers'])): ?>
+        <div class="empty">No IT service providers are currently registered on the platform.</div>
+    <?php else: ?>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Provider Name</th>
+                        <th>Email Contact</th>
+                        <th>Phone Number</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($data['providers'] as $provider): ?>
+                        <tr>
+                            <td><strong><?= e($provider['full_name']) ?></strong></td>
+                            <td><?= e($provider['email']) ?></td>
+                            <td><?= e($provider['phone'] ?: 'None shared') ?></td>
+                            <td>
+                                <span class="status" style="background:var(--brand-soft); color:var(--brand); cursor:pointer;">
+                                    Request Service
+                                </span>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
 </section>
 
 <section class="panel" style="margin-top:24px;">
     <h2>Recent requests</h2>
-    <?php if ($data['recent_requests'] === []): ?>
-        <div class="empty">No service requests yet. The next phase will connect this dashboard to provider browsing and request creation.</div>
+    <?php if (empty($data['recent_requests'])): ?>
+        <div class="empty">No service requests yet. The next development phase will link provider buttons directly to request configuration flows.</div>
     <?php else: ?>
         <div class="table-wrap">
             <table>
@@ -56,9 +91,9 @@ declare(strict_types=1);
                     <?php foreach ($data['recent_requests'] as $request): ?>
                         <tr>
                             <td><?= e($request['subject']) ?></td>
-                            <td><?= e($request['business_name']) ?></td>
+                            <td><?= e($request['business_name'] ?? 'Unassigned') ?></td>
                             <td><span class="status"><?= e($request['status']) ?></span></td>
-                            <td>NGN <?= number_format((float) $request['amount'], 2) ?></td>
+                            <td>NGN <?= number_format((float) ($request['amount'] ?? 0), 2) ?></td>
                             <td><?= e($request['created_at']) ?></td>
                         </tr>
                     <?php endforeach; ?>
