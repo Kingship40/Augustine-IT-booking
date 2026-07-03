@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/../app/bootstrap.php';
+// Corrected relative paths to match the flat directory structure
+require __DIR__ . '/bootstrap.php';
 
-$app = require __DIR__ . '/../app/config/app.php';
+$app = require __DIR__ . '/app.php';
 $route = $_GET['route'] ?? $app['default_route'];
 
 function render(string $view, array $data = []): void
@@ -14,10 +15,10 @@ function render(string $view, array $data = []): void
     extract($data, EXTR_SKIP);
 
     ob_start();
-    require __DIR__ . '/../app/views/' . $view . '.php';
+    require __DIR__ . '/' . $view . '.php';
     $content = ob_get_clean();
 
-    require __DIR__ . '/../app/views/layout.php';
+    require __DIR__ . '/layout.php';
 }
 
 function validate_registration(array $input): array
@@ -73,15 +74,15 @@ if (!database_ready()) {
     ?>
     <section class="hero">
         <span class="eyebrow">Database Required</span>
-        <h1>Connect MySQL before using authentication.</h1>
+        <h1>Connect database before using authentication.</h1>
         <p class="muted">
-            Update your credentials in <code>app/config/database.php</code> and import
-            <code>database/schema.sql</code> into MySQL or MariaDB. After that, reload this page.
+            Update your credentials in <code>database.php</code> and import
+            <code>schema.sql</code> into your database cluster. After that, reload this page.
         </p>
     </section>
     <?php
     $content = ob_get_clean();
-    require __DIR__ . '/../app/views/layout.php';
+    require __DIR__ . '/layout.php';
     exit;
 }
 
@@ -93,7 +94,7 @@ if ($route === 'home') {
 
 if ($route === 'register' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     require_guest();
-    render('auth/register', [
+    render('register', [
         'title' => 'Register',
         'role' => $_GET['role'] ?? 'seeker',
     ]);
@@ -142,7 +143,7 @@ if ($route === 'register' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($route === 'login' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     require_guest();
-    render('auth/login', ['title' => 'Login']);
+    render('login', ['title' => 'Login']);
     exit;
 }
 
@@ -193,7 +194,7 @@ if ($route === 'dashboard') {
 
 if ($route === 'seeker-dashboard') {
     require_role('seeker');
-    render('dashboard/seeker', [
+    render('seeker', [
         'title' => 'Seeker Dashboard',
         'user' => current_user(),
         'data' => get_seeker_dashboard_data((int) current_user()['id']),
@@ -203,7 +204,7 @@ if ($route === 'seeker-dashboard') {
 
 if ($route === 'provider-dashboard') {
     require_role('provider');
-    render('dashboard/provider', [
+    render('provider', [
         'title' => 'Provider Dashboard',
         'user' => current_user(),
         'data' => get_provider_dashboard_data((int) current_user()['id']),
@@ -213,7 +214,7 @@ if ($route === 'provider-dashboard') {
 
 if ($route === 'admin-dashboard') {
     require_role('admin');
-    render('dashboard/admin', [
+    render('admin', [
         'title' => 'Admin Dashboard',
         'user' => current_user(),
         'data' => get_admin_dashboard_data(),
