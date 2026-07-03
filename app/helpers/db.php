@@ -17,7 +17,7 @@ function db(): PDO
         $config['host'],
         $config['port'],
         $config['database'],
-        $config['charset']
+        $config['charset'] ?? 'utf8mb4'
     );
 
     $pdo = new PDO(
