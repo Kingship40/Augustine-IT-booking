@@ -6,22 +6,17 @@ function get_seeker_dashboard_data(int $seekerId): array
 {
     $db = db();
 
-    // 1. Fetch Seeker Wallet Balance safely
-    $walletStmt = $db->prepare('SELECT balance FROM wallets WHERE user_id = :user_id LIMIT 1');
-    $walletStmt->execute(['user_id' => $seekerId]);
-    $wallet = $walletStmt->fetch() ?: ['balance' => 0.00];
-
-    // 2. Count Total Requests Created by Seeker
+    // 1. Count Total Requests Created by Seeker
     $reqCountStmt = $db->prepare('SELECT COUNT(*) as count FROM service_requests WHERE seeker_id = :seeker_id');
     $reqCountStmt->execute(['seeker_id' => $seekerId]);
     $requestCount = (int) ($reqCountStmt->fetch()['count'] ?? 0);
 
-    // 3. Count Completed Requests
+    // 2. Count Completed Requests
     $compCountStmt = $db->prepare("SELECT COUNT(*) as count FROM service_requests WHERE seeker_id = :seeker_id AND status = 'completed'");
     $compCountStmt->execute(['seeker_id' => $seekerId]);
     $completedCount = (int) ($compCountStmt->fetch()['count'] ?? 0);
 
-    // 4. Fetch Recent Requests
+    // 3. Fetch Recent Requests
     $recentStmt = $db->prepare("
         SELECT r.*, u.full_name as business_name 
         FROM service_requests r
@@ -33,7 +28,7 @@ function get_seeker_dashboard_data(int $seekerId): array
     $recentStmt->execute(['seeker_id' => $seekerId]);
     $recentRequests = $recentStmt->fetchAll() ?: [];
 
-    // 5. Fetch All Live Platform Providers for Discovery List
+    // 4. Fetch All Live Platform Providers for Discovery List
     $providersStmt = $db->prepare("
         SELECT id, full_name, email, phone 
         FROM users 
@@ -44,11 +39,10 @@ function get_seeker_dashboard_data(int $seekerId): array
     $providers = $providersStmt->fetchAll() ?: [];
 
     return [
-        'wallet'          => $wallet,
         'request_count'   => $requestCount,
         'completed_count' => $completedCount,
         'recent_requests' => $recentRequests,
-        'providers'       => $providers, // Added for provider browsing layout
+        'providers'       => $providers,
     ];
 }
 
@@ -56,7 +50,6 @@ function get_provider_dashboard_data(int $providerId): array
 {
     $db = db();
 
-    // Safe Profile Data Fetch
     $profileStmt = $db->prepare('SELECT business_name, verification_status, availability_status FROM users WHERE id = :id LIMIT 1');
     $profileStmt->execute(['id' => $providerId]);
     $profile = $profileStmt->fetch() ?: [
@@ -65,13 +58,8 @@ function get_provider_dashboard_data(int $providerId): array
         'availability_status' => 'available'
     ];
 
-    $walletStmt = $db->prepare('SELECT balance FROM wallets WHERE user_id = :user_id LIMIT 1');
-    $walletStmt->execute(['user_id' => $providerId]);
-    $wallet = $walletStmt->fetch() ?: ['balance' => 0.00];
-
     return [
         'profile'                  => $profile,
-        'wallet'                   => $wallet,
         'service_count'            => 0,
         'job_count'                => 0,
         'pending_withdrawal_count' => 0,

@@ -7,14 +7,13 @@ declare(strict_types=1);
         <div>
             <span class="eyebrow">Seeker Dashboard</span>
             <h1>Welcome back, <?= e($user['full_name']) ?>.</h1>
-            <p class="muted">This view is prepared for service requests, wallet activity, provider discovery, and review history.</p>
+            <p class="muted">This view is prepared for service requests, provider discovery, and review history.</p>
         </div>
         <div class="panel">
             <h3>Quick direction</h3>
             <ul class="list">
                 <li>Browse registered platform service providers below</li>
                 <li>Submit a targeted service request assignment</li>
-                <li>Fund your wallet to make secure payments instantly</li>
                 <li>Confirm job completion to close out active reviews</li>
             </ul>
         </div>
@@ -22,10 +21,6 @@ declare(strict_types=1);
 </section>
 
 <section class="grid cards">
-    <div class="panel stat">
-        <span class="muted">Wallet Balance</span>
-        <strong>NGN <?= number_format((float) ($data['wallet']['balance'] ?? 0), 2) ?></strong>
-    </div>
     <div class="panel stat">
         <span class="muted">Requests Created</span>
         <strong><?= e((string) ($data['request_count'] ?? 0)) ?></strong>
@@ -36,7 +31,6 @@ declare(strict_types=1);
     </div>
 </section>
 
-<!-- Added Feature: Discovery List of Available Providers -->
 <section class="panel" style="margin-top:24px;">
     <h2>Available IT Service Providers</h2>
     <?php if (empty($data['providers'])): ?>

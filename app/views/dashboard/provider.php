@@ -7,7 +7,7 @@ declare(strict_types=1);
         <div>
             <span class="eyebrow">Provider Dashboard</span>
             <h1>Welcome back, <?= e($user['full_name']) ?>.</h1>
-            <p class="muted">This dashboard tracks provider setup, verification, jobs, earnings, and withdrawal activity.</p>
+            <p class="muted">This dashboard tracks provider setup, verification, jobs, and overall platform activity.</p>
         </div>
         <div class="panel">
             <h3>Profile summary</h3>
@@ -20,20 +20,12 @@ declare(strict_types=1);
 
 <section class="grid cards">
     <div class="panel stat">
-        <span class="muted">Available Balance</span>
-        <strong>NGN <?= number_format((float) ($data['wallet']['balance'] ?? 0), 2) ?></strong>
-    </div>
-    <div class="panel stat">
         <span class="muted">Published Services</span>
         <strong><?= e((string) $data['service_count']) ?></strong>
     </div>
     <div class="panel stat">
         <span class="muted">Total Jobs</span>
         <strong><?= e((string) $data['job_count']) ?></strong>
-    </div>
-    <div class="panel stat">
-        <span class="muted">Pending Withdrawals</span>
-        <strong><?= e((string) $data['pending_withdrawal_count']) ?></strong>
     </div>
 </section>
 
