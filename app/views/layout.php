@@ -15,35 +15,26 @@ $viewer = current_user();
     
     <!-- PWA Configuration -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#14532d">
+    <meta name="theme-color" content="#0a121e">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker Registered Successfully!', reg.scope))
-                    .catch(err => console.log('Service Worker Registration Failed:', err));
-            });
-        }
-    </script>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
         :root {
-            --bg: #eef3f8;
-            --panel: #ffffff;
-            --ink: #16202d;
-            --muted: #5d6a79;
-            --brand: #14532d;
-            --brand-soft: #dff5e7;
-            --accent: #0f766e;
-            --border: #d9e3ee;
-            --danger: #991b1b;
-            --danger-soft: #fee2e2;
-            --success: #166534;
-            --success-soft: #dcfce7;
-            --shadow: 0 18px 40px rgba(22, 32, 45, 0.08);
+            --bg: #060b13;
+            --panel: #0d1726;
+            --ink: #f1f5f9;
+            --muted: #94a3b8;
+            --brand: #1d4ed8;
+            --brand-soft: rgba(29, 78, 216, 0.15);
+            --accent: #38bdf8;
+            --border: #1e293b;
+            --danger: #ef4444;
+            --danger-soft: rgba(239, 68, 68, 0.1);
+            --success: #10b981;
+            --success-soft: rgba(16, 185, 129, 0.1);
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            --glow: 0 0 15px rgba(56, 189, 248, 0.4);
         }
         * {
             box-sizing: border-box;
@@ -52,9 +43,10 @@ $viewer = current_user();
             margin: 0;
             font-family: Arial, sans-serif;
             color: var(--ink);
-            background:
-                radial-gradient(circle at top left, rgba(20, 83, 45, 0.10), transparent 28%),
-                linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+            background: 
+                radial-gradient(circle at top left, rgba(29, 78, 216, 0.15), transparent 35%),
+                var(--bg);
+            min-height: 100vh;
         }
         a {
             color: inherit;
@@ -72,11 +64,11 @@ $viewer = current_user();
             gap: 16px;
             margin-bottom: 24px;
             padding: 18px 20px;
-            background: rgba(255, 255, 255, 0.92);
-            border: 1px solid rgba(217, 227, 238, 0.9);
+            background: rgba(13, 23, 38, 0.8);
+            border: 1px solid var(--border);
             border-radius: 20px;
             box-shadow: var(--shadow);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
         }
         .brand {
             display: flex;
@@ -85,6 +77,7 @@ $viewer = current_user();
         }
         .brand strong {
             font-size: 1.05rem;
+            color: #ffffff;
         }
         .brand span {
             color: var(--muted);
@@ -103,10 +96,12 @@ $viewer = current_user();
             border-radius: 999px;
             padding: 11px 16px;
             font-size: 0.95rem;
+            transition: all 0.2s ease;
         }
         .chip {
-            background: #f3f7fb;
+            background: #111e30;
             border: 1px solid var(--border);
+            color: var(--accent);
         }
         .button,
         button {
@@ -114,22 +109,34 @@ $viewer = current_user();
             background: var(--brand);
             color: #ffffff;
             font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .button:hover,
+        button:hover {
+            background: #2563eb;
+            box-shadow: var(--glow);
         }
         .button.secondary {
-            background: #ffffff;
-            color: var(--ink);
+            background: #1e293b;
+            color: #ffffff;
             border: 1px solid var(--border);
+        }
+        .button.secondary:hover {
+            background: #334155;
+            box-shadow: none;
         }
         .hero,
         .panel {
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(217, 227, 238, 0.92);
+            background: rgba(13, 23, 38, 0.9);
+            border: 1px solid var(--border);
             border-radius: 24px;
             box-shadow: var(--shadow);
         }
         .hero {
             padding: 28px;
             margin-bottom: 24px;
+            background: linear-gradient(135deg, #0d1726 0%, #090f1a 100%);
+            border-left: 4px solid var(--brand);
         }
         .hero-grid,
         .grid {
@@ -143,9 +150,6 @@ $viewer = current_user();
         .grid.cards {
             grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
         }
-        .grid.two {
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        }
         .panel {
             padding: 22px;
         }
@@ -153,6 +157,7 @@ $viewer = current_user();
         .panel h3,
         .hero h1 {
             margin-top: 0;
+            color: #ffffff;
         }
         .eyebrow {
             display: inline-block;
@@ -160,22 +165,25 @@ $viewer = current_user();
             padding: 7px 12px;
             border-radius: 999px;
             background: var(--brand-soft);
-            color: var(--brand);
+            color: var(--accent);
             font-size: 0.85rem;
             font-weight: 700;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
+            border: 1px solid rgba(56, 189, 248, 0.2);
         }
         .muted {
             color: var(--muted);
         }
         .stat {
             padding: 20px;
+            background: #0d1726;
         }
         .stat strong {
             display: block;
             font-size: 1.8rem;
             margin-top: 8px;
+            color: #ffffff;
         }
         .alert {
             margin-bottom: 18px;
@@ -185,13 +193,13 @@ $viewer = current_user();
         }
         .alert.success {
             background: var(--success-soft);
-            color: var(--success);
-            border-color: #bbf7d0;
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.2);
         }
         .alert.error {
             background: var(--danger-soft);
-            color: var(--danger);
-            border-color: #fecaca;
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.2);
         }
         form {
             display: grid;
@@ -204,6 +212,7 @@ $viewer = current_user();
         label {
             font-size: 0.95rem;
             font-weight: 700;
+            color: #e2e8f0;
         }
         input,
         select,
@@ -213,16 +222,15 @@ $viewer = current_user();
             border-radius: 14px;
             padding: 13px 14px;
             font: inherit;
-            color: var(--ink);
-            background: #ffffff;
+            color: #ffffff;
+            background: #070c14;
         }
-        textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-        .hint {
-            font-size: 0.85rem;
-            color: var(--muted);
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.2);
         }
         .table-wrap {
             overflow-x: auto;
@@ -235,7 +243,7 @@ $viewer = current_user();
         td {
             text-align: left;
             padding: 12px 10px;
-            border-bottom: 1px solid #ebf1f6;
+            border-bottom: 1px solid var(--border);
         }
         th {
             font-size: 0.85rem;
@@ -243,36 +251,30 @@ $viewer = current_user();
             letter-spacing: 0.03em;
             color: var(--muted);
         }
+        td {
+            color: #e2e8f0;
+        }
         .status {
             display: inline-flex;
             padding: 6px 10px;
             border-radius: 999px;
-            background: #edf7ff;
-            color: #0c4a6e;
+            background: #1e293b;
+            color: var(--accent);
             font-size: 0.82rem;
             font-weight: 700;
             text-transform: capitalize;
+            border: 1px solid var(--border);
         }
         .empty {
-            padding: 16px;
+            padding: 24px;
             border-radius: 16px;
-            background: #f8fafc;
+            background: #090f1a;
             border: 1px dashed var(--border);
             color: var(--muted);
-        }
-        .auth-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 22px;
-        }
-        .list {
-            margin: 0;
-            padding-left: 18px;
-            line-height: 1.8;
+            text-align: center;
         }
         @media (max-width: 840px) {
-            .hero-grid,
-            .auth-grid {
+            .hero-grid {
                 grid-template-columns: 1fr;
             }
             .nav {
@@ -287,7 +289,7 @@ $viewer = current_user();
         <nav class="nav">
             <div class="brand">
                 <strong><a href="<?= e(url('home')) ?>"><?= e($app['name']) ?></a></strong>
-                <span>Responsive PHP CRUD platform for seekers, providers, and admins</span>
+                <span>Premium Dark UI Workspace</span>
             </div>
             <div class="nav-links">
                 <?php if ($viewer): ?>
@@ -299,7 +301,7 @@ $viewer = current_user();
                     </form>
                 <?php else: ?>
                     <a class="button secondary" href="<?= e(url('login')) ?>">Sign in</a>
-                    <a class="button" href="<?= e(url('register')) ?>">Create account</a>
+                    <a class="button" href="<?= e(url('register')) ?>">Get Started</a>
                 <?php endif; ?>
             </div>
         </nav>
