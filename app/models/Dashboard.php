@@ -28,11 +28,11 @@ function get_seeker_dashboard_data(int $seekerId): array
     $recentStmt->execute(['seeker_id' => $seekerId]);
     $recentRequests = $recentStmt->fetchAll() ?: [];
 
-    // 4. Fetch All Live Platform Providers for Discovery List (Enum Type-Cast Fix)
+    // 4. Fetch All Live Platform Providers for Discovery List (Enum Type-Cast + Wildcard Failsafe Fix)
     $providersStmt = $db->prepare("
         SELECT id, full_name, email, phone, business_name 
         FROM users 
-        WHERE LOWER(role::text) = 'provider'
+        WHERE LOWER(role::text) LIKE '%provider%'
         ORDER BY full_name ASC
     ");
     $providersStmt->execute();
