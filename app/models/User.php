@@ -35,7 +35,14 @@ function provider_service_categories(): array
 function ensure_provider_profile_columns(): void
 {
     $db = db();
-    $columns = $db->query('SHOW COLUMNS FROM provider_profiles')->fetchAll(PDO::FETCH_COLUMN);
+    $columnsStmt = $db->prepare(
+        'SELECT column_name FROM information_schema.columns WHERE table_name = :table_name AND table_schema = :schema'
+    );
+    $columnsStmt->execute([
+        'table_name' => 'provider_profiles',
+        'schema' => 'public',
+    ]);
+    $columns = $columnsStmt->fetchAll(PDO::FETCH_COLUMN);
 
     if (!in_array('service_category', $columns, true)) {
         $db->exec('ALTER TABLE provider_profiles ADD COLUMN service_category VARCHAR(150) NULL');
