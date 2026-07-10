@@ -110,31 +110,35 @@ $serviceOtherText = old('service_other_text', $serviceOtherText ?? '');
 </section>
 
 <script>
-    const roleSelect = document.getElementById('role');
-    const providerFields = document.getElementById('provider-specific-fields');
-    const serviceOtherCheckbox = document.getElementById('service_other');
-    const serviceOtherTextWrap = document.getElementById('service_other_text_wrap');
+    document.addEventListener('DOMContentLoaded', function () {
+        var roleSelect = document.getElementById('role');
+        var providerFields = document.getElementById('provider-specific-fields');
+        var serviceOtherCheckbox = document.getElementById('service_other');
+        var serviceOtherTextWrap = document.getElementById('service_other_text_wrap');
 
-    function toggleProviderFields() {
-        if (!roleSelect || !providerFields) {
-            return;
+        function toggleProviderFields() {
+            var isProvider = roleSelect && roleSelect.value === 'provider';
+            if (providerFields) {
+                providerFields.style.display = isProvider ? 'block' : 'none';
+            }
+
+            if (serviceOtherCheckbox && serviceOtherTextWrap) {
+                serviceOtherTextWrap.style.display = serviceOtherCheckbox.checked ? 'block' : 'none';
+            }
+
+            if (!isProvider && serviceOtherCheckbox) {
+                serviceOtherCheckbox.checked = false;
+            }
         }
 
-        const isProvider = roleSelect.value === 'provider';
-        providerFields.style.display = isProvider ? '' : 'none';
-
-        if (!isProvider && serviceOtherCheckbox) {
-            serviceOtherCheckbox.checked = false;
+        if (roleSelect) {
+            roleSelect.addEventListener('change', toggleProviderFields);
         }
 
-        if (!serviceOtherCheckbox || !serviceOtherTextWrap) {
-            return;
+        if (serviceOtherCheckbox) {
+            serviceOtherCheckbox.addEventListener('change', toggleProviderFields);
         }
 
-        serviceOtherTextWrap.style.display = serviceOtherCheckbox.checked ? '' : 'none';
-    }
-
-    roleSelect?.addEventListener('change', toggleProviderFields);
-    serviceOtherCheckbox?.addEventListener('change', toggleProviderFields);
-    toggleProviderFields();
+        toggleProviderFields();
+    });
 </script>
