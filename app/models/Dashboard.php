@@ -35,7 +35,7 @@ function get_seeker_dashboard_data(int $seekerId): array
         . 'COALESCE(p.service_category, p.service_other_text, \'Not set\') AS service_category '
         . 'FROM users u '
         . 'LEFT JOIN provider_profiles p ON p.user_id = u.id '
-        . 'WHERE u.role = :role '
+        . 'WHERE LOWER(CAST(u.role AS text)) = :role '
         . 'ORDER BY u.full_name ASC'
     );
     $providersStmt->execute(['role' => 'provider']);

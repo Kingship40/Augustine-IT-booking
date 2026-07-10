@@ -47,6 +47,8 @@ if (isset($data) && is_array($data)) {
                 <thead>
                     <tr>
                         <th>Provider Name</th>
+                        <th>Business Name</th>
+                        <th>Service Category</th>
                         <th>Email Contact</th>
                         <th>Phone Number</th>
                         <th>Action</th>
