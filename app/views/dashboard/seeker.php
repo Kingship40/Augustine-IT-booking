@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 <section class="panel" style="margin-top:24px;">
     <h2>Available IT Service Providers</h2>
+    <p class="muted">Found <?= e((string) count($data['providers'])) ?> provider<?= count($data['providers']) === 1 ? '' : 's' ?> on the platform.</p>
     <?php if (empty($data['providers'])): ?>
         <div class="empty">No IT service providers are currently registered on the platform.</div>
     <?php else: ?>

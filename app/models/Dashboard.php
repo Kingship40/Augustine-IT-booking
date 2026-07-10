@@ -29,14 +29,16 @@ function get_seeker_dashboard_data(int $seekerId): array
     $recentRequests = $recentStmt->fetchAll() ?: [];
 
     // 4. Fetch All Live Platform Providers for Discovery List
-    $providersStmt = $db->prepare("
-        SELECT u.id, u.full_name, u.email, u.phone, p.business_name, p.service_category, p.service_other_text
-        FROM users u
-        LEFT JOIN provider_profiles p ON p.user_id = u.id
-        WHERE u.role = 'provider'
-        ORDER BY u.full_name ASC
-    ");
-    $providersStmt->execute();
+    $providersStmt = $db->prepare(
+        'SELECT u.id, u.full_name, u.email, u.phone, '
+        . 'COALESCE(p.business_name, u.full_name) AS business_name, '
+        . 'COALESCE(p.service_category, p.service_other_text, \'Not set\') AS service_category '
+        . 'FROM users u '
+        . 'LEFT JOIN provider_profiles p ON p.user_id = u.id '
+        . 'WHERE u.role = :role '
+        . 'ORDER BY u.full_name ASC'
+    );
+    $providersStmt->execute(['role' => 'provider']);
     $providers = $providersStmt->fetchAll() ?: [];
 
     return [
