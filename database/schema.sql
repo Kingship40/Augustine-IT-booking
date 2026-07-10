@@ -33,6 +33,8 @@ CREATE TABLE provider_profiles (
     verification_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
     average_rating DECIMAL(3,2) NOT NULL DEFAULT 0.00,
     total_reviews INT NOT NULL DEFAULT 0,
+    service_category VARCHAR(150) NULL,
+    service_other_text VARCHAR(150) NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 

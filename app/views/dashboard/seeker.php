@@ -50,6 +50,8 @@ declare(strict_types=1);
                     <?php foreach ($data['providers'] as $provider): ?>
                         <tr>
                             <td><strong><?= e($provider['full_name'] ?? 'Unknown Provider') ?></strong></td>
+                            <td><?= e($provider['business_name'] ?? 'N/A') ?></td>
+                            <td><?= e($provider['service_category'] ?? ($provider['service_other_text'] ?? 'Not set')) ?></td>
                             <td><?= e($provider['email'] ?? 'N/A') ?></td>
                             <td><?= e($provider['phone'] ?? 'None shared') ?></td>
                             <td>

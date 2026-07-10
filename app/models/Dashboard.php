@@ -28,12 +28,13 @@ function get_seeker_dashboard_data(int $seekerId): array
     $recentStmt->execute(['seeker_id' => $seekerId]);
     $recentRequests = $recentStmt->fetchAll() ?: [];
 
-    // 4. Fetch All Live Platform Providers for Discovery List (Enum Type-Cast + Wildcard Failsafe Fix)
+    // 4. Fetch All Live Platform Providers for Discovery List
     $providersStmt = $db->prepare("
-        SELECT id, full_name, email, phone, business_name 
-        FROM users 
-        WHERE LOWER(role::text) LIKE '%provider%'
-        ORDER BY full_name ASC
+        SELECT u.id, u.full_name, u.email, u.phone, p.business_name, p.service_category, p.service_other_text
+        FROM users u
+        LEFT JOIN provider_profiles p ON p.user_id = u.id
+        WHERE u.role = 'provider'
+        ORDER BY u.full_name ASC
     ");
     $providersStmt->execute();
     $providers = $providersStmt->fetchAll() ?: [];
@@ -51,7 +52,7 @@ function get_provider_dashboard_data(int $providerId): array
     $db = db();
 
     // 1. Fetch profile business name only
-    $profileStmt = $db->prepare('SELECT business_name FROM users WHERE id = :id LIMIT 1');
+    $profileStmt = $db->prepare('SELECT business_name FROM provider_profiles WHERE user_id = :id LIMIT 1');
     $profileStmt->execute(['id' => $providerId]);
     $profile = $profileStmt->fetch() ?: [
         'business_name' => 'Not set'
@@ -67,17 +68,8 @@ function get_provider_dashboard_data(int $providerId): array
     $jobCountStmt->execute(['provider_id' => $providerId]);
     $jobCount = (int) ($jobCountStmt->fetch()['count'] ?? 0);
 
-    // 4. Fetch Recent Jobs mapping user profile links cleanly
-   // 4. Fetch All Live Platform Providers for Discovery List (Inverted Filter Fix)
-    $providersStmt = $db->prepare("
-        SELECT id, full_name, email, phone, business_name 
-        FROM users 
-        WHERE LOWER(role::text) NOT LIKE '%seeker%' 
-          AND LOWER(role::text) NOT LIKE '%admin%'
-        ORDER BY full_name ASC
-    ");
-    $providersStmt->execute();
-    $providers = $providersStmt->fetchAll() ?: [];
+    $recentJobs = [];
+
     return [
         'profile'                  => $profile,
         'service_count'            => $serviceCount,

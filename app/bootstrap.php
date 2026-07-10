@@ -16,3 +16,5 @@ require_once __DIR__ . '/helpers/http.php';
 require_once __DIR__ . '/helpers/auth.php';
 require_once __DIR__ . '/models/User.php';
 require_once __DIR__ . '/models/Dashboard.php';
+
+ensure_provider_profile_columns();

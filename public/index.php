@@ -29,7 +29,7 @@ function validate_registration(array $input): array
     $role = $input['role'] ?? 'seeker';
     $email = strtolower(trim((string) ($input['email'] ?? '')));
 
-    if (!in_array($role, ['seeker', 'provider', 'admin'], true)) {
+    if (!in_array($role, ['seeker', 'provider'], true)) {
         $errors[] = 'Please choose a valid account role.';
     }
 
@@ -49,8 +49,22 @@ function validate_registration(array $input): array
         $errors[] = 'Password confirmation does not match.';
     }
 
-    if ($role === 'provider' && trim($input['business_name'] ?? '') === '') {
-        $errors[] = 'Business name is required for provider registration.';
+    if ($role === 'provider') {
+        if (trim($input['business_name'] ?? '') === '') {
+            $errors[] = 'Business name is required for provider registration.';
+        }
+
+        $serviceCategory = trim((string) ($input['service_category'] ?? ''));
+        $serviceOther = !empty($input['service_other']);
+        $serviceOtherText = trim((string) ($input['service_other_text'] ?? ''));
+
+        if ($serviceCategory === '' && !$serviceOther) {
+            $errors[] = 'Please choose a service category for provider registration.';
+        }
+
+        if ($serviceOther && $serviceOtherText === '') {
+            $errors[] = 'Please describe your other service category.';
+        }
     }
 
     if ($email !== '' && find_user_by_email($email)) {
@@ -99,6 +113,7 @@ if ($route === 'register' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     render('auth/register', [
         'title' => 'Register',
         'role' => $_GET['role'] ?? 'seeker',
+        'service_categories' => provider_service_categories(),
     ]);
     exit;
 }
@@ -130,6 +145,9 @@ if ($route === 'register' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             'skills' => trim((string) ($_POST['skills'] ?? '')),
             'bio' => trim((string) ($_POST['bio'] ?? '')),
             'years_experience' => trim((string) ($_POST['years_experience'] ?? '')),
+            'service_category' => trim((string) ($_POST['service_category'] ?? '')),
+            'service_other' => !empty($_POST['service_other']),
+            'service_other_text' => trim((string) ($_POST['service_other_text'] ?? '')),
         ]);
 
         clear_old();

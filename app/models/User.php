@@ -2,6 +2,50 @@
 
 declare(strict_types=1);
 
+function provider_service_categories(): array
+{
+    return [
+        'Web Development',
+        'Mobile App Development (Android & iOS)',
+        'UI/UX Design',
+        'Software Development',
+        'Database Design & Management',
+        'Cloud Computing Solutions',
+        'Cybersecurity Services',
+        'Network Setup & Administration',
+        'IT Support & Help Desk',
+        'Computer Repairs & Maintenance',
+        'Server Installation & Management',
+        'API Development & Integration',
+        'E-commerce Website Development',
+        'AI & Machine Learning Solutions',
+        'Data Analytics & Business Intelligence',
+        'Digital Transformation Consulting',
+        'IT Training & Certification',
+        'DevOps & CI/CD Implementation',
+        'System Integration',
+        'Software Testing & Quality Assurance',
+        'SEO & Digital Marketing',
+        'Graphic Design & Branding',
+        'Domain Registration & Web Hosting',
+        'Backup & Disaster Recovery Solutions',
+    ];
+}
+
+function ensure_provider_profile_columns(): void
+{
+    $db = db();
+    $columns = $db->query('SHOW COLUMNS FROM provider_profiles')->fetchAll(PDO::FETCH_COLUMN);
+
+    if (!in_array('service_category', $columns, true)) {
+        $db->exec('ALTER TABLE provider_profiles ADD COLUMN service_category VARCHAR(150) NULL');
+    }
+
+    if (!in_array('service_other_text', $columns, true)) {
+        $db->exec('ALTER TABLE provider_profiles ADD COLUMN service_other_text VARCHAR(150) NULL');
+    }
+}
+
 function find_user_by_email(string $email): ?array
 {
     $statement = db()->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
@@ -23,6 +67,7 @@ function find_user_by_id(int $id): ?array
 function register_user(array $data): array
 {
     $pdo = db();
+    ensure_provider_profile_columns();
     $pdo->beginTransaction();
 
     try {
@@ -62,18 +107,29 @@ function register_user(array $data): array
         }
 
         if ($data['role'] === 'provider') {
+            $serviceCategory = trim((string) ($data['service_category'] ?? ''));
+            $serviceOtherText = trim((string) ($data['service_other_text'] ?? ''));
+            $resolvedServiceCategory = $serviceOtherText !== '' ? $serviceOtherText : $serviceCategory;
+
+            $skillsValue = trim((string) ($data['skills'] ?? ''));
+            if ($resolvedServiceCategory !== '') {
+                $skillsValue = $skillsValue === '' ? $resolvedServiceCategory : $skillsValue . ' | ' . $resolvedServiceCategory;
+            }
+
             $profileStatement = $pdo->prepare(
-                'INSERT INTO provider_profiles (user_id, business_name, bio, skills, years_experience, availability_status, verification_status)
-                 VALUES (:user_id, :business_name, :bio, :skills, :years_experience, :availability_status, :verification_status)'
+                'INSERT INTO provider_profiles (user_id, business_name, bio, skills, years_experience, availability_status, verification_status, service_category, service_other_text)
+                 VALUES (:user_id, :business_name, :bio, :skills, :years_experience, :availability_status, :verification_status, :service_category, :service_other_text)'
             );
             $profileStatement->execute([
                 'user_id' => $userId,
                 'business_name' => $data['business_name'],
                 'bio' => $data['bio'] ?: null,
-                'skills' => $data['skills'] ?: null,
+                'skills' => $skillsValue !== '' ? $skillsValue : null,
                 'years_experience' => $data['years_experience'] !== '' ? (int) $data['years_experience'] : null,
                 'availability_status' => 'available',
                 'verification_status' => 'pending',
+                'service_category' => $resolvedServiceCategory !== '' ? $resolvedServiceCategory : null,
+                'service_other_text' => $serviceOtherText !== '' ? $serviceOtherText : null,
             ]);
         }
 
