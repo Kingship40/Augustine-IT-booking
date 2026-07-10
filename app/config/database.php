@@ -3,9 +3,10 @@
 declare(strict_types=1);
 
 return [
-    'host'     => getenv('DB_HOST') ?: 'aws-0-eu-west-1.pooler.supabase.com',
-    'port'     => getenv('DB_PORT') ?: '5432',
-    'database' => getenv('DB_DATABASE') ?: 'postgres',
-    'username' => getenv('DB_USERNAME') ?: 'postgres.vflwhhwxqsysrpcgvbwl',
-    'password' => getenv('DB_PASSWORD') ?: 'fc?644Y!nL#bar$',
+    'driver'   => getenv('DB_DRIVER') ?: 'mysql',
+    'host'     => getenv('DB_HOST') ?: '127.0.0.1',
+    'port'     => getenv('DB_PORT') ?: '3306',
+    'database' => getenv('DB_DATABASE') ?: 'your_local_database',
+    'username' => getenv('DB_USERNAME') ?: 'root',
+    'password' => getenv('DB_PASSWORD') ?: '',
 ];

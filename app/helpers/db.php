@@ -11,14 +11,25 @@ function db(): PDO
     }
 
     $config = require __DIR__ . '/../config/database.php';
+    $driver = strtolower($config['driver'] ?? 'mysql');
 
-    // Swapped driver syntax from 'mysql' to 'pgsql'
-    $dsn = sprintf(
-        'pgsql:host=%s;port=%s;dbname=%s',
-        $config['host'],
-        $config['port'],
-        $config['database']
-    );
+    if ($driver === 'pgsql') {
+        $dsn = sprintf(
+            'pgsql:host=%s;port=%s;dbname=%s',
+            $config['host'],
+            $config['port'],
+            $config['database']
+        );
+    } elseif ($driver === 'mysql') {
+        $dsn = sprintf(
+            'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
+            $config['host'],
+            $config['port'],
+            $config['database']
+        );
+    } else {
+        throw new RuntimeException('Unsupported DB_DRIVER: ' . $config['driver']);
+    }
 
     $pdo = new PDO(
         $dsn,
