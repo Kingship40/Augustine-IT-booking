@@ -68,17 +68,16 @@ function get_provider_dashboard_data(int $providerId): array
     $jobCount = (int) ($jobCountStmt->fetch()['count'] ?? 0);
 
     // 4. Fetch Recent Jobs mapping user profile links cleanly
-    $recentJobsStmt = $db->prepare("
-        SELECT r.*, u.full_name as seeker_name 
-        FROM service_requests r
-        LEFT JOIN users u ON r.seeker_id = u.id
-        WHERE r.provider_id = :provider_id
-        ORDER BY r.created_at DESC 
-        LIMIT 5
+   // 4. Fetch All Live Platform Providers for Discovery List (Inverted Filter Fix)
+    $providersStmt = $db->prepare("
+        SELECT id, full_name, email, phone, business_name 
+        FROM users 
+        WHERE LOWER(role::text) NOT LIKE '%seeker%' 
+          AND LOWER(role::text) NOT LIKE '%admin%'
+        ORDER BY full_name ASC
     ");
-    $recentJobsStmt->execute(['provider_id' => $providerId]);
-    $recentJobs = $recentJobsStmt->fetchAll() ?: [];
-
+    $providersStmt->execute();
+    $providers = $providersStmt->fetchAll() ?: [];
     return [
         'profile'                  => $profile,
         'service_count'            => $serviceCount,
