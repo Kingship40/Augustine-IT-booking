@@ -1,6 +1,11 @@
 <?php
 
 declare(strict_types=1);
+
+$providers = [];
+if (isset($data) && is_array($data)) {
+    $providers = $data['providers'] ?? [];
+}
 ?>
 <section class="hero">
     <div class="hero-grid">
@@ -33,8 +38,8 @@ declare(strict_types=1);
 
 <section class="panel" style="margin-top:24px;">
     <h2>Available IT Service Providers</h2>
-    <p class="muted">Found <?= e((string) count($data['providers'])) ?> provider<?= count($data['providers']) === 1 ? '' : 's' ?> on the platform.</p>
-    <?php if (empty($data['providers'])): ?>
+    <p class="muted">Found <?= e((string) count($providers)) ?> provider<?= count($providers) === 1 ? '' : 's' ?> on the platform.</p>
+    <?php if (empty($providers)): ?>
         <div class="empty">No IT service providers are currently registered on the platform.</div>
     <?php else: ?>
         <div class="table-wrap">
@@ -48,7 +53,7 @@ declare(strict_types=1);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($data['providers'] as $provider): ?>
+                    <?php foreach ($providers as $provider): ?>
                         <tr>
                             <td><strong><?= e($provider['full_name'] ?? 'Unknown Provider') ?></strong></td>
                             <td><?= e($provider['business_name'] ?? 'N/A') ?></td>
