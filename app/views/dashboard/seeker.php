@@ -6,7 +6,7 @@ declare(strict_types=1);
     <div class="hero-grid">
         <div>
             <span class="eyebrow">Seeker Dashboard</span>
-            <h1>Welcome back, <?= e($user['full_name']) ?>.</h1>
+            <h1>Welcome back, <?= e($user['full_name'] ?? 'Seeker') ?>.</h1>
             <p class="muted">This view is prepared for service requests, provider discovery, and review history.</p>
         </div>
         <div class="panel">
@@ -49,9 +49,9 @@ declare(strict_types=1);
                 <tbody>
                     <?php foreach ($data['providers'] as $provider): ?>
                         <tr>
-                            <td><strong><?= e($provider['full_name']) ?></strong></td>
-                            <td><?= e($provider['email']) ?></td>
-                            <td><?= e($provider['phone'] ?: 'None shared') ?></td>
+                            <td><strong><?= e($provider['full_name'] ?? 'Unknown Provider') ?></strong></td>
+                            <td><?= e($provider['email'] ?? 'N/A') ?></td>
+                            <td><?= e($provider['phone'] ?? 'None shared') ?></td>
                             <td>
                                 <span class="status" style="background:var(--brand-soft); color:var(--brand); cursor:pointer;">
                                     Request Service
@@ -84,11 +84,11 @@ declare(strict_types=1);
                 <tbody>
                     <?php foreach ($data['recent_requests'] as $request): ?>
                         <tr>
-                            <td><?= e($request['subject']) ?></td>
+                            <td><?= e($request['subject'] ?? 'Service Request') ?></td>
                             <td><?= e($request['business_name'] ?? 'Unassigned') ?></td>
-                            <td><span class="status"><?= e($request['status']) ?></span></td>
+                            <td><span class="status"><?= e($request['status'] ?? 'pending') ?></span></td>
                             <td>NGN <?= number_format((float) ($request['amount'] ?? 0), 2) ?></td>
-                            <td><?= e($request['created_at']) ?></td>
+                            <td><?= e($request['created_at'] ?? 'N/A') ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
